@@ -1,0 +1,30 @@
+{
+  "name": "xmlobject",
+  "version": "0.5.0",
+  "description": "Convert javascript objects to and from xml strings.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aloisdeniel/node-xmlobject.git"
+  },
+  "keywords": [
+    "xml",
+    "convert",
+    "js",
+    "string",
+    "parse",
+    "builder"
+  ],
+  "author": "Aloïs Deniel",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/aloisdeniel/node-xmlobject/issues"
+  },
+  "homepage": "https://github.com/aloisdeniel/node-xmlobject#readme",
+  "dependencies": {
+    "sax": "^1.2.2"
+  }
+}
