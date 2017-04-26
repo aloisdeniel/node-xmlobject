@@ -25,6 +25,10 @@ XML.deserialize(s, function(err,r) {
     console.log("i: " + f1.getAttribute(ns, "i"));
     console.log("f: " + f1.getText());
 
+    /* ->
+    {"name":"a","attributes":{"xmlns:":"http://www.example.com/xml/default","xmlns":"http://www.example.com/xml/default","xmlns:test":"http://www.example.com/xml/test","b":"c","d":"e"},"namespaces":[{"prefix":"","value":"http://www.example.com/xml/default"},{"prefix":"test","value":"http://www.example.com/xml/test"}],"children":[{"name":"test:f","attributes":{"test:i":"j"},"namespaces":[],"children":["g",{"name":"h","attributes":{},"namespaces":[],"children":[]}]}]}
+    */
+
 });
 
 // Serialize to xml
@@ -41,6 +45,14 @@ f.createChild("h");
 
 a.serialize(function(err, r) {
     console.log(r);
+
+     /* ->
+    <a b="c" d="e" xmlns:test="http://www.example.com/xml/test">
+        <test:f test:i="j">
+        g  <h />
+        </test:f>
+    </a>
+    */
 });
 ```
 
