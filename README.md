@@ -15,10 +15,16 @@ var XML = require('xmlobject');
 
 // Deserialize from xml
 
-var s = '<a b="c" d="e"><f i="j">g<h /></f></a>';
+var ns = "http://www.example.com/xml/test"
+var defaultns = "http://www.example.com/xml/default"
+var s = '<a xmlns="'+defaultns+'" xmlns:test="'+ns+'" b="c" d="e"><test:f test:i="j">g<h /></test:f></a>';
 
 XML.deserialize(s, function(err,r) {
     console.log(r.asJSON())
+    var f1 = r.firstChild(ns,"f");
+    console.log("i: " + f1.getAttribute(ns, "i"));
+    console.log("f: " + f1.getText());
+
 });
 
 // Serialize to xml
@@ -26,16 +32,21 @@ XML.deserialize(s, function(err,r) {
 var a = new XML("a");
 a.setAttribute("b","c");
 a.setAttribute("d","e");
-var f = new XML("f");
-f.setAttribute("i","j");
+a.addNamespace("test", ns)
+
+var f = a.createChild(ns,"f");
+f.setAttribute(ns,"i","j")
 f.addChild("g");
-f.addChild(new XML("h"))
-a.addChild(f);
+f.createChild("h");
 
 a.serialize(function(err, r) {
-    console.log(r)
+    console.log(r);
 });
 ```
+
+## Warning
+
+*xmlobject* is a perfect fit for small parsing scenario where all data could remain in memory but would not be perfectly optimized for parsing mega-octets of xml content where a stream/sax based approach would be better.
 
 ## Copyright and license
 

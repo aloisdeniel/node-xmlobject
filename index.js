@@ -10,7 +10,7 @@ function serializeNode(scope, node) {
     }
 
     // Children
-    if(node.children) {
+    if(node.children.length > 0) {
         result += '>\n';
         node.children.forEach(function(c) {
             if (typeof c === 'string') result += c;
@@ -28,20 +28,53 @@ function prefix(scope) { return Array(scope+1).join(" "); }
 
 class Node {
 
-  constructor(name) {
+  constructor(name, parent) {
     if(!name) throw new Error("node should have at least a name");
     this.name = name;
+    this.parent = parent;
     this.attributes = {};
+    this.namespaces = [];
     this.children = [];
   }
 
-  getAttribute(name) {
+  // #region Attributes
+
+  getAttribute(ns, name) {
+    if(name)
+    {
+        var prefix = this.getNamespacePrefix(ns);
+        name = prefix + ":" + name;
+    }
+    else name = ns;
 	return this.attributes[name];
   }
 
-  setAttribute(name, value) {
+  setAttribute(ns, name, value) {
+    if(value)
+    {
+        var prefix = this.getNamespacePrefix(ns);
+        name = prefix + ":" + name;
+    }
+    else
+    {
+        value = name;
+        name = ns;
+    }
+
+    if(name.startsWith("xmlns:"))
+    {
+        var res = name.split(":");
+        this.addNamespace(res[1], value);
+    }
+    else if(name === "xmlns")
+    {
+        this.addNamespace("", value);
+    }
+
 	this.attributes[name] = value;
   }
+
+  // #region Text
 
   getTextNodes() {
       return this.children.filter(function(c) { return typeof(c) === 'string'; });
@@ -62,17 +95,69 @@ class Node {
       this.addChild(value);
   }
 
+  // #region Namespaces
+
+  namespace() {
+      var res = this.name.split(":");
+      if(res.length == 2)return this.getNamespaceValue(res[0]);
+      else return this.getNamespaceValue("");
+  }
+
+  addNamespace(prefix, url) {
+    this.namespaces.push({ prefix: prefix, value: url });
+	this.attributes["xmlns:"+prefix] = url;
+  }
+
+  nameWithoutPrefix() {
+      var res = this.name.split(":");
+      if(res.length == 2) return res[1];
+      else return this.name;
+  }
+
+  getNamespacePrefix(value) {
+      var ns = this.namespaces.find(function(n) { return n.value === value;});
+      if(ns) return ns.prefix;
+      if(this.parent) return this.parent.getNamespacePrefix(value);
+      return null;
+  }
+
+  getNamespaceValue(prefix) {
+      var ns = this.namespaces.find(function(n) { return n.prefix === prefix;});
+      if(ns) return ns.value;
+      if(this.parent) return this.parent.getNamespaceValue(prefix);
+      return null;
+  }
+
+  // #region Children 
+
+  createChild(ns,name) {
+    if(name != null)
+    {
+        var prefix = this.getNamespacePrefix(ns);
+        name = prefix + ":" + name;
+    }
+    else name = ns;
+
+    var child = new Node(name, this);
+    this.addChild(child);
+    return child;
+  }
+
   addChild(c) {
       this.children.push(c);
   }
 
-  findChildren(name) {
-      return this.children.filter(function(c) { return c.name === name;});
+  findChildren(ns, name) {
+    if(name )return this.children.filter(function(c) { return  name == c.nameWithoutPrefix() && c.namespace() === ns;});
+    return this.children.filter(function(c) { return ns == c.name }); 
   }
 
-  firstChild(name) {
-      return this.children.find(function(c) { return c.name === name;});
+  firstChild(ns,name) {
+    if(name)return this.children.find(function(c) { return  name == c.nameWithoutPrefix() && c.namespace() === ns;});
+    return this.children.find(function(c) { return ns == c.name }); 
   }
+
+  // #region Serialization
 
   static deserialize(s,cb) {
         var stack = [];
@@ -80,10 +165,12 @@ class Node {
 
         var parser = sax.parser(true);
         parser.onopentagstart = function (node) {
-            current = new Node(node.name);
-            if(stack.length > 0)
-            {
-                stack[stack.length - 1].addChild(current);
+            if(stack.length > 0) {
+                var parent = stack[stack.length - 1];
+                current = parent.createChild(node.name);
+            }
+            else {
+                current = new Node(node.name);
             }
             stack.push(current);
         };
@@ -105,9 +192,19 @@ class Node {
         }
     }
 
-    asJSON() {
-        return JSON.stringify(this);
+    asObject() {
+        return {
+            name: this.name,
+            attributes: this.attributes,
+            namespaces: this.namespaces,
+            children: this.children.map(function(c) { 
+                if (typeof c === 'string') return c;
+                return c.asObject(); 
+            })
+        }
     }
+
+    asJSON() { return JSON.stringify(this.asObject()); }
 }
 
 module.exports = Node;
