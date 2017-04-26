@@ -36,10 +36,11 @@ XML.deserialize(s, function(err,r) {
 var a = new XML("a");
 a.setAttribute("b","c");
 a.setAttribute("d","e");
-a.addNamespace("test", ns)
+a.setNamespace(defaultns);
+a.addNamespace("test", ns);
 
 var f = a.createChild(ns,"f");
-f.setAttribute(ns,"i","j")
+f.setAttribute(ns,"i","j");
 f.addChild("g");
 f.createChild("h");
 
@@ -47,11 +48,7 @@ a.serialize(function(err, r) {
     console.log(r);
 
      /* ->
-    <a b="c" d="e" xmlns:test="http://www.example.com/xml/test">
-        <test:f test:i="j">
-        g  <h />
-        </test:f>
-    </a>
+    <a b="c" d="e" xmlns="http://www.example.com/xml/default" xmlns:test="http://www.example.com/xml/test"><test:f test:i="j">g<h /></test:f></a>
     */
 });
 ```

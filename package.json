@@ -1,6 +1,6 @@
 {
   "name": "xmlobject",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Convert javascript objects to and from xml strings.",
   "main": "index.js",
   "scripts": {

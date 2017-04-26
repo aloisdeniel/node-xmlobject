@@ -2,7 +2,7 @@ var sax = require("sax");
 
 function serializeNode(scope, node) {
     scope = scope || 0;
-    var result = prefix(scope) + '<' + node.name;
+    var result = '<' + node.name;
 
     // Attributes
     for(var name in node.attributes) {
@@ -11,12 +11,12 @@ function serializeNode(scope, node) {
 
     // Children
     if(node.children.length > 0) {
-        result += '>\n';
+        result += '>';
         node.children.forEach(function(c) {
             if (typeof c === 'string') result += c;
-            else result += serializeNode(scope + 1,c) + "\n";
+            else result += serializeNode(scope + 1,c);
         }, this);
-        result += prefix(scope) + '</'+node.name+'>';
+        result += '</'+node.name+'>';
     }
     else{
         result += ' />';
@@ -68,7 +68,7 @@ class Node {
     }
     else if(name === "xmlns")
     {
-        this.addNamespace("", value);
+        this.setNamespace(value);
     }
 
 	this.attributes[name] = value;
@@ -103,9 +103,15 @@ class Node {
       else return this.getNamespaceValue("");
   }
 
+  setNamespace(url) {
+      this.addNamespace(null, url);
+  }
+
   addNamespace(prefix, url) {
     this.namespaces.push({ prefix: prefix, value: url });
-	this.attributes["xmlns:"+prefix] = url;
+    var attname = "xmlns";
+    if(prefix) attname += ":" + prefix;
+	this.attributes[attname] = url;
   }
 
   nameWithoutPrefix() {
