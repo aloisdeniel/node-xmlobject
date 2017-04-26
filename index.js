@@ -181,7 +181,12 @@ class Node {
             stack.push(current);
         };
         parser.onattribute = function (node) { current.setAttribute(node.name, node.value); };
-        parser.ontext = function (t) { stack[stack.length - 1].addChild(t); };
+        parser.ontext = function (t) { 
+            if(stack.length > 0) {
+                var parent = stack[stack.length - 1];
+                parent.addChild(t); 
+            }
+        };
         parser.onclosetag = function (node) { current = stack.pop(); };
         parser.onend = function (node) { cb(null,current) };
         parser.onerror = cb;
