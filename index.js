@@ -34,7 +34,7 @@ class Node {
     this.parent = parent;
     this.attributes = {};
     this.namespaces = [];
-    this.children = [];
+    this._children = [];
   }
 
   // #region Attributes
@@ -135,6 +135,9 @@ class Node {
   }
 
   // #region Children 
+  get children() {
+      return this._children;
+  }
 
   createChild(ns,name) {
     if(name != null)
@@ -145,12 +148,12 @@ class Node {
     else name = ns;
 
     var child = new Node(name, this);
-    this.addChild(child);
-    return child;
+    return this.addChild(child);
   }
 
   addChild(c) {
       this.children.push(c);
+      return c;
   }
 
   findChildren(ns, name) {
