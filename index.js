@@ -158,13 +158,13 @@ class Node {
   }
 
   findChildren(ns, name) {
-    if(name )return this.children.filter(function(c) { return  name == c.nameWithoutPrefix() && c.namespace() === ns;});
-    return this.children.filter(function(c) { return ns == c.name }); 
+    if(name )return this.children.filter(function(c) { return typeof(c) !== 'string' && name == c.nameWithoutPrefix() && c.namespace() === ns;});
+    return this.children.filter(function(c) { return typeof(c) !== 'string' && ns == c.name }); 
   }
 
   firstChild(ns,name) {
-    if(name)return this.children.find(function(c) { return  name == c.nameWithoutPrefix() && c.namespace() === ns;});
-    return this.children.find(function(c) { return ns == c.name }); 
+    if(name)return this.children.find(function(c) { return typeof(c) !== 'string' && name == c.nameWithoutPrefix() && c.namespace() === ns;});
+    return this.children.find(function(c) { return typeof(c) !== 'string' && ns == c.name }); 
   }
 
   // #region Serialization
